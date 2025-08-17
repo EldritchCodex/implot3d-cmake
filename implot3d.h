@@ -203,6 +203,9 @@ enum ImPlot3DTriangleFlags_ {
     ImPlot3DTriangleFlags_None = 0, // Default
     ImPlot3DTriangleFlags_NoLegend = ImPlot3DItemFlags_NoLegend,
     ImPlot3DTriangleFlags_NoFit = ImPlot3DItemFlags_NoFit,
+    ImPlot3DTriangleFlags_NoLines = 1 << 10,   // No lines will be rendered
+    ImPlot3DTriangleFlags_NoFill = 1 << 11,    // No fill will be rendered
+    ImPlot3DTriangleFlags_NoMarkers = 1 << 12, // No markers will be rendered
 };
 
 // Flags for PlotQuad
@@ -210,6 +213,9 @@ enum ImPlot3DQuadFlags_ {
     ImPlot3DQuadFlags_None = 0, // Default
     ImPlot3DQuadFlags_NoLegend = ImPlot3DItemFlags_NoLegend,
     ImPlot3DQuadFlags_NoFit = ImPlot3DItemFlags_NoFit,
+    ImPlot3DQuadFlags_NoLines = 1 << 10,   // No lines will be rendered
+    ImPlot3DQuadFlags_NoFill = 1 << 11,    // No fill will be rendered
+    ImPlot3DQuadFlags_NoMarkers = 1 << 12, // No markers will be rendered
 };
 
 // Flags for PlotSurface
@@ -217,6 +223,9 @@ enum ImPlot3DSurfaceFlags_ {
     ImPlot3DSurfaceFlags_None = 0, // Default
     ImPlot3DSurfaceFlags_NoLegend = ImPlot3DItemFlags_NoLegend,
     ImPlot3DSurfaceFlags_NoFit = ImPlot3DItemFlags_NoFit,
+    ImPlot3DSurfaceFlags_NoLines = 1 << 10,   // No lines will be rendered
+    ImPlot3DSurfaceFlags_NoFill = 1 << 11,    // No fill will be rendered
+    ImPlot3DSurfaceFlags_NoMarkers = 1 << 12, // No markers will be rendered
 };
 
 // Flags for PlotMesh
@@ -224,6 +233,9 @@ enum ImPlot3DMeshFlags_ {
     ImPlot3DMeshFlags_None = 0, // Default
     ImPlot3DMeshFlags_NoLegend = ImPlot3DItemFlags_NoLegend,
     ImPlot3DMeshFlags_NoFit = ImPlot3DItemFlags_NoFit,
+    ImPlot3DMeshFlags_NoLines = 1 << 10,   // No lines will be rendered
+    ImPlot3DMeshFlags_NoFill = 1 << 11,    // No fill will be rendered
+    ImPlot3DMeshFlags_NoMarkers = 1 << 12, // No markers will be rendered
 };
 
 // Flags for PlotImage
@@ -265,6 +277,7 @@ enum ImPlot3DAxisFlags_ {
     ImPlot3DAxisFlags_LockMax = 1 << 5,      // The axis maximum value will be locked when panning/zooming
     ImPlot3DAxisFlags_AutoFit = 1 << 6,      // Axis will be auto-fitting to data extents
     ImPlot3DAxisFlags_Invert = 1 << 7,       // The axis will be inverted
+    ImPlot3DAxisFlags_PanStretch = 1 << 8,   // Panning in a locked or constrained state will cause the axis to stretch if possible
     ImPlot3DAxisFlags_Lock = ImPlot3DAxisFlags_LockMin | ImPlot3DAxisFlags_LockMax,
     ImPlot3DAxisFlags_NoDecorations = ImPlot3DAxisFlags_NoLabel | ImPlot3DAxisFlags_NoGridLines | ImPlot3DAxisFlags_NoTickLabels,
 };
@@ -377,7 +390,7 @@ IMPLOT3D_API void SetupAxis(ImAxis3D axis, const char* label = nullptr, ImPlot3D
 
 IMPLOT3D_API void SetupAxisLimits(ImAxis3D axis, double v_min, double v_max, ImPlot3DCond cond = ImPlot3DCond_Once);
 
-IMPLOT3D_API void SetupAxisFormat(ImAxis3D idx, ImPlot3DFormatter formatter, void* data = nullptr);
+IMPLOT3D_API void SetupAxisFormat(ImAxis3D axis, ImPlot3DFormatter formatter, void* data = nullptr);
 
 // Sets an axis' ticks and optionally the labels. To keep the default ticks, set #keep_default=true
 IMPLOT3D_API void SetupAxisTicks(ImAxis3D axis, const double* values, int n_ticks, const char* const labels[] = nullptr, bool keep_default = false);
@@ -385,6 +398,12 @@ IMPLOT3D_API void SetupAxisTicks(ImAxis3D axis, const double* values, int n_tick
 // Sets an axis' ticks and optionally the labels for the next plot. To keep the default ticks, set #keep_default=true
 IMPLOT3D_API void SetupAxisTicks(ImAxis3D axis, double v_min, double v_max, int n_ticks, const char* const labels[] = nullptr,
                                  bool keep_default = false);
+
+// Sets an axis' limits constraints
+IMPLOT3D_API void SetupAxisLimitsConstraints(ImAxis3D axis, double v_min, double v_max);
+
+// Sets an axis' zoom constraints
+IMPLOT3D_API void SetupAxisZoomConstraints(ImAxis3D axis, double z_min, double z_max);
 
 // Sets the label and/or flags for primary X/Y/Z axes (shorthand for three calls to SetupAxis)
 IMPLOT3D_API void SetupAxes(const char* x_label, const char* y_label, const char* z_label, ImPlot3DAxisFlags x_flags = 0,
@@ -586,6 +605,9 @@ IMPLOT3D_API void ShowAllDemos();
 
 // Shows ImPlot3D style editor block (not a window)
 IMPLOT3D_API void ShowStyleEditor(ImPlot3DStyle* ref = nullptr);
+
+// Shows ImPlot3D metrics/debug information window.
+IMPLOT3D_API void ShowMetricsWindow(bool* p_popen = nullptr);
 
 } // namespace ImPlot3D
 

@@ -576,7 +576,7 @@ template <class _Getter> struct RendererTriangleFill : RendererBase {
         p_plot[2] = Getter(3 * prim + 2);
 
         // Check if the triangle is outside the culling box
-        if (!cull_box.Contains(p_plot[0]) && !cull_box.Contains(p_plot[0]) && !cull_box.Contains(p_plot[1]))
+        if (!cull_box.Contains(p_plot[0]) && !cull_box.Contains(p_plot[1]) && !cull_box.Contains(p_plot[2]))
             return false;
 
         // Project the triangle vertices to screen space
@@ -677,9 +677,10 @@ template <class _Getter> struct RendererQuadFill : RendererBase {
 
         draw_list_3d._IdxWritePtr += 6;
 
-        // Add depth values for the two triangles
-        draw_list_3d._ZWritePtr[0] = GetPointDepth((p_plot[0] + p_plot[1] + p_plot[2]) / 3.0f);
-        draw_list_3d._ZWritePtr[1] = GetPointDepth((p_plot[0] + p_plot[2] + p_plot[3]) / 3.0f);
+        // Add depth value for the quad
+        float z = GetPointDepth((p_plot[0] + p_plot[1] + p_plot[2] + p_plot[3]) / 4.0f);
+        draw_list_3d._ZWritePtr[0] = z;
+        draw_list_3d._ZWritePtr[1] = z;
         draw_list_3d._ZWritePtr += 2;
 
         // Update vertex count
@@ -755,9 +756,10 @@ template <class _Getter> struct RendererQuadImage : RendererBase {
 
         draw_list_3d._IdxWritePtr += 6;
 
-        // Add depth values for the two triangles
-        draw_list_3d._ZWritePtr[0] = GetPointDepth((p_plot[0] + p_plot[1] + p_plot[2]) / 3.0f);
-        draw_list_3d._ZWritePtr[1] = GetPointDepth((p_plot[0] + p_plot[2] + p_plot[3]) / 3.0f);
+        // Add depth value for the quad
+        float z = GetPointDepth((p_plot[0] + p_plot[1] + p_plot[2] + p_plot[3]) / 4.0f);
+        draw_list_3d._ZWritePtr[0] = z;
+        draw_list_3d._ZWritePtr[1] = z;
         draw_list_3d._ZWritePtr += 2;
 
         // Update vertex count
@@ -1238,19 +1240,19 @@ template <typename _Getter> void PlotTriangleEx(const char* label_id, const _Get
         const ImPlot3DNextItemData& n = GetItemData();
 
         // Render fill
-        if (getter.Count >= 3 && n.RenderFill) {
+        if (getter.Count >= 3 && n.RenderFill && !ImHasFlag(flags, ImPlot3DTriangleFlags_NoFill)) {
             const ImU32 col_fill = ImGui::GetColorU32(n.Colors[ImPlot3DCol_Fill]);
             RenderPrimitives<RendererTriangleFill>(getter, col_fill);
         }
 
         // Render lines
-        if (getter.Count >= 2 && n.RenderLine) {
+        if (getter.Count >= 2 && n.RenderLine && !ImHasFlag(flags, ImPlot3DTriangleFlags_NoLines)) {
             const ImU32 col_line = ImGui::GetColorU32(n.Colors[ImPlot3DCol_Line]);
             RenderPrimitives<RendererLineSegments>(GetterTriangleLines<_Getter>(getter), col_line, n.LineWeight);
         }
 
         // Render markers
-        if (n.Marker != ImPlot3DMarker_None) {
+        if (n.Marker != ImPlot3DMarker_None && !ImHasFlag(flags, ImPlot3DTriangleFlags_NoMarkers)) {
             const ImU32 col_line = ImGui::GetColorU32(n.Colors[ImPlot3DCol_MarkerOutline]);
             const ImU32 col_fill = ImGui::GetColorU32(n.Colors[ImPlot3DCol_MarkerFill]);
             RenderMarkers<_Getter>(getter, n.Marker, n.MarkerSize, n.RenderMarkerFill, col_fill, n.RenderMarkerLine, col_line, n.MarkerWeight);
@@ -1284,19 +1286,19 @@ template <typename _Getter> void PlotQuadEx(const char* label_id, const _Getter&
         const ImPlot3DNextItemData& n = GetItemData();
 
         // Render fill
-        if (getter.Count >= 4 && n.RenderFill) {
+        if (getter.Count >= 4 && n.RenderFill && !ImHasFlag(flags, ImPlot3DQuadFlags_NoFill)) {
             const ImU32 col_fill = ImGui::GetColorU32(n.Colors[ImPlot3DCol_Fill]);
             RenderPrimitives<RendererQuadFill>(getter, col_fill);
         }
 
         // Render lines
-        if (getter.Count >= 2 && n.RenderLine) {
+        if (getter.Count >= 2 && n.RenderLine && !ImHasFlag(flags, ImPlot3DQuadFlags_NoLines)) {
             const ImU32 col_line = ImGui::GetColorU32(n.Colors[ImPlot3DCol_Line]);
             RenderPrimitives<RendererLineSegments>(GetterQuadLines<_Getter>(getter), col_line, n.LineWeight);
         }
 
         // Render markers
-        if (n.Marker != ImPlot3DMarker_None) {
+        if (n.Marker != ImPlot3DMarker_None && !ImHasFlag(flags, ImPlot3DQuadFlags_NoMarkers)) {
             const ImU32 col_line = ImGui::GetColorU32(n.Colors[ImPlot3DCol_MarkerOutline]);
             const ImU32 col_fill = ImGui::GetColorU32(n.Colors[ImPlot3DCol_MarkerFill]);
             RenderMarkers<_Getter>(getter, n.Marker, n.MarkerSize, n.RenderMarkerFill, col_fill, n.RenderMarkerLine, col_line, n.MarkerWeight);
@@ -1330,19 +1332,19 @@ template <typename _Getter> void PlotSurfaceEx(const char* label_id, const _Gett
         const ImPlot3DNextItemData& n = GetItemData();
 
         // Render fill
-        if (getter.Count >= 4 && n.RenderFill) {
+        if (getter.Count >= 4 && n.RenderFill && !ImHasFlag(flags, ImPlot3DSurfaceFlags_NoFill)) {
             const ImU32 col_fill = ImGui::GetColorU32(n.Colors[ImPlot3DCol_Fill]);
             RenderPrimitives<RendererSurfaceFill>(getter, x_count, y_count, col_fill, scale_min, scale_max);
         }
 
         // Render lines
-        if (getter.Count >= 2 && n.RenderLine) {
+        if (getter.Count >= 2 && n.RenderLine && !ImHasFlag(flags, ImPlot3DSurfaceFlags_NoLines)) {
             const ImU32 col_line = ImGui::GetColorU32(n.Colors[ImPlot3DCol_Line]);
             RenderPrimitives<RendererLineSegments>(GetterSurfaceLines<_Getter>(getter, x_count, y_count), col_line, n.LineWeight);
         }
 
         // Render markers
-        if (n.Marker != ImPlot3DMarker_None) {
+        if (n.Marker != ImPlot3DMarker_None && !ImHasFlag(flags, ImPlot3DSurfaceFlags_NoMarkers)) {
             const ImU32 col_line = ImGui::GetColorU32(n.Colors[ImPlot3DCol_MarkerOutline]);
             const ImU32 col_fill = ImGui::GetColorU32(n.Colors[ImPlot3DCol_MarkerFill]);
             RenderMarkers<_Getter>(getter, n.Marker, n.MarkerSize, n.RenderMarkerFill, col_fill, n.RenderMarkerLine, col_line, n.MarkerWeight);
@@ -1379,19 +1381,19 @@ void PlotMesh(const char* label_id, const ImPlot3DPoint* vtx, const unsigned int
         const ImPlot3DNextItemData& n = GetItemData();
 
         // Render fill
-        if (getter.Count >= 3 && n.RenderFill) {
+        if (getter.Count >= 3 && n.RenderFill && !ImHasFlag(flags, ImPlot3DMeshFlags_NoFill)) {
             const ImU32 col_fill = ImGui::GetColorU32(n.Colors[ImPlot3DCol_Fill]);
             RenderPrimitives<RendererTriangleFill>(getter_triangles, col_fill);
         }
 
         // Render lines
-        if (getter.Count >= 2 && n.RenderLine && !n.IsAutoLine) {
+        if (getter.Count >= 2 && n.RenderLine && !n.IsAutoLine && !ImHasFlag(flags, ImPlot3DMeshFlags_NoLines)) {
             const ImU32 col_line = ImGui::GetColorU32(n.Colors[ImPlot3DCol_Line]);
             RenderPrimitives<RendererLineSegments>(GetterTriangleLines<GetterMeshTriangles>(getter_triangles), col_line, n.LineWeight);
         }
 
         // Render markers
-        if (n.Marker != ImPlot3DMarker_None) {
+        if (n.Marker != ImPlot3DMarker_None && !ImHasFlag(flags, ImPlot3DMeshFlags_NoMarkers)) {
             const ImU32 col_line = ImGui::GetColorU32(n.Colors[ImPlot3DCol_MarkerOutline]);
             const ImU32 col_fill = ImGui::GetColorU32(n.Colors[ImPlot3DCol_MarkerFill]);
             RenderMarkers(getter, n.Marker, n.MarkerSize, n.RenderMarkerFill, col_fill, n.RenderMarkerLine, col_line, n.MarkerWeight);
